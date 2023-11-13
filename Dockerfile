@@ -13,9 +13,9 @@ RUN docker-php-ext-enable pdo_mysql
 # Instalamos composer
 RUN curl -sS https//getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Intsalamos git
-RUN apt-get update
-RUN apt-get install git-all
+# Intalamos git
+  RUN apt-get update
+  RUN apt-get install git-all
 
 # Reiniciomos el servicio
 RUN a2enmod rewrite
