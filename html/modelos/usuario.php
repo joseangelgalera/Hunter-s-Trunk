@@ -1,35 +1,32 @@
 <?php
 class Usuario {
-    public int $idUsuario;
-    public string $nombre;
-    public string $email;
-    public string $contraseña;
-    public int $idCazador;
+    protected $conn;
+    private $nombre;
+    private $email;
+    private $contrasena;
 
-    public function guardarEnBaseDeDatos() {
-        // Conexión a la base de datos
-        $conexion = new mysqli("localhost", "usuario", "contraseña", "basededatos");
+    public function __construct($db){
+        $this->conn = $db;
+    }
 
-        // Verificar si la conexión fue exitosa
-        if ($conexion->connect_error) {
-            die("Error de conexión: " . $conexion->connect_error);
-        }
+    public function register( $nombre, $email, $contrasena ){
 
-        // Preparar la consulta SQL
-        $sql = "INSERT INTO usuarios (nombre, email, contraseña, idCazador) VALUES ('$this->nombre', '$this->email', '$this->contraseña', '$this->idCazador')";
+        $this->nombre = $nombre;
+        $this->email = $email;
+        $this->contrasena = $contrasena;
 
-        // Ejecutar la consulta
-        if ($conexion->query($sql) === TRUE) {
-            echo "Usuario guardado en la base de datos";
-        } else {
-            echo "Error al guardar el usuario: " . $conexion->error;
-        }
 
-        // Cerrar la conexión
-        $conexion->close();
+        try {
+            $hash_contrasena = password_hash($this->contrasena, PASSWORD_DEFAULT);
+            $stmt = $this->conn->prepare("INSERT INTO Usuario( nombre, email, contrasena) VALUES( :nombre, :email, :contrasena)");
+            $stmt->bindparam(":nombre", $this->nombre);
+            $stmt->bindparam(":email", $this->email);
+            $stmt->bindparam(":contrasena", $hash_contrasena);
+
+            $stmt->execute(); 
+            return $this->conn->lastInsertId();  
+        } catch(PDOException $e) {
+            echo $e->getMessage();
+        }    
     }
 }
-
-
-
-?>
